@@ -1,8 +1,12 @@
 import { USER_POSTS_PAGE } from "../routes.js";
 import { renderHeaderComponent } from "./header-component.js";
 import { posts, goToPage, getToken, isLike, changeLike } from "../index.js";
-import { addDislike, addLike, getPosts } from "../api.js";
+import { addDislike, addLike } from "../api.js";
+import { format } from 'date-fns';
+import { formatDistanceToNowStrict } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
+// var formatDistanceToNowStrict = require('date-fns/formatDistanceToNowStrict')
 export function renderPostsPageComponent({ appEl }) {
 
   console.log("Актуальный список постов:", posts);
@@ -14,7 +18,9 @@ export function renderPostsPageComponent({ appEl }) {
 
   const postsHtml = posts
     .map(
-      (post) => `
+      (post) => {
+        // const formatDistanceToNow = format(date, "date-fns/formatDistanceToNowStrict");
+        return `
         <li class="post">
           <div class="post-header" data-user-id="${post.user.id}">
               <img src="${post.user.imageUrl}" class="post-header__user-image">
@@ -26,20 +32,18 @@ export function renderPostsPageComponent({ appEl }) {
           <div class="post-likes">
             <button data-post-id="${post.id}" class="like-button">
               <img src="${post.isLiked
-          ? "./assets/images/like-active.svg"
-          : "./assets/images/like-not-active.svg"
-        }">
+            ? "./assets/images/like-active.svg"
+            : "./assets/images/like-not-active.svg"
+          }">
             </button>
             <p class="post-likes-text">
               Нравится: <strong>${post.likes.length}</strong>
             </p>
           </div>
           <p class="post-text">${post.description}</p>
-          <p class="post-date">
-            ${post.createdAt}
-          </p>
+          <p class="post-date">${formatDistanceToNowStrict(post.createdAt, { locale: ru })} назад</p>
         </li>
-    `
+    `}
     )
     .join("");
 

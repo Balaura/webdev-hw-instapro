@@ -3,7 +3,7 @@
 import { changeLike, getToken } from "./index.js";
 
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = "alex";
+const personalKey = "prod";
 const baseHost = "https://wedev-api.sky.pro";
 const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`;
 

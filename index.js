@@ -39,7 +39,7 @@ export const changeLike = (postId) => {
   renderApp();
 }
 
-export const isLike = (postId) => { 
+export const isLike = (postId) => {
   console.log("zzzasdasdasdasdzzz");
   const post = posts.find((post) => post.id === postId);
   console.log(post);
