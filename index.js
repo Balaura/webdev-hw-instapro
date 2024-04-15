@@ -1,4 +1,4 @@
-import { getPosts } from "./api.js";
+import { addPost, getPosts } from "./api.js";
 import { renderAddPostPageComponent } from "./components/add-post-page-component.js";
 import { renderAuthPageComponent } from "./components/auth-page-component.js";
 import {
@@ -20,10 +20,31 @@ export let user = getUserFromLocalStorage();
 export let page = null;
 export let posts = [];
 
-const getToken = () => {
+export const getToken = () => {
   const token = user ? `Bearer ${user.token}` : undefined;
   return token;
 };
+
+export const changeLike = (postId) => {
+  console.log("zzzzzz");
+  const post = posts.find((post) => post.id === postId);
+  console.log(post);
+  post.isLiked = !post.isLiked;
+  if (post.isLiked) {
+    post.likes.push({ "id": user._id, "name": user.name });
+  }
+  if (!post.isLiked) {
+    post.likes = post.likes.filter((like) => like.id !== user._id);
+  }
+  renderApp();
+}
+
+export const isLike = (postId) => { 
+  console.log("zzzasdasdasdasdzzz");
+  const post = posts.find((post) => post.id === postId);
+  console.log(post);
+  return post.isLiked;
+}
 
 export const logout = () => {
   user = null;
@@ -69,10 +90,18 @@ export const goToPage = (newPage, data) => {
     if (newPage === USER_POSTS_PAGE) {
       // TODO: реализовать получение постов юзера из API
       console.log("Открываю страницу пользователя: ", data.userId);
-      page = USER_POSTS_PAGE;
-      posts = [];
-      return renderApp();
+      return getPosts({ token: getToken(), userId: data.userId })
+        .then((newPosts) => {
+          page = POSTS_PAGE;
+          posts = newPosts;
+          renderApp();
+        })
+        .catch((error) => {
+          console.error(error);
+          goToPage(POSTS_PAGE);
+        });
     }
+
 
     page = newPage;
     renderApp();
@@ -110,10 +139,18 @@ const renderApp = () => {
     return renderAddPostPageComponent({
       appEl,
       onAddPostClick({ description, imageUrl }) {
-        // TODO: реализовать добавление поста в API
-        console.log("Добавляю пост...", { description, imageUrl });
-        goToPage(POSTS_PAGE);
-      },
+        addPost({
+          description,
+          imageUrl,
+          token: getToken(),
+        })
+          .then(() => {
+            goToPage(POSTS_PAGE);
+          })
+          .catch((error) => {
+            console.error(error);
+          });
+      }
     });
   }
 
