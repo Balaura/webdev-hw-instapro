@@ -1,16 +1,13 @@
 import { renderUploadImageComponent } from "./upload-image-component.js";
+import { renderHeaderComponent } from "./header-component.js";
 
 export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
   let imageUrl = "";
 
   const render = () => {
-    // TODO: Реализовать страницу добавления поста
     const appHtml = `
     <div class="page-container">
     <div class="header-container">
-      <div class="page-header">
-        <h1 class="logo">instapro</h1>
-      </div>
     </div>
     <div class="form">
       <h3 class="form-title">Добавить пост</h3>
@@ -28,6 +25,9 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
   `;
 
     appEl.innerHTML = appHtml;
+    renderHeaderComponent({
+      element: document.querySelector(".header-container"),
+    });
     const uploadImageContainer = appEl.querySelector(".upload-image-container");
     const description = document.getElementById("description");
 
@@ -39,16 +39,17 @@ export function renderAddPostPageComponent({ appEl, onAddPostClick }) {
         },
       });
     }
-
     document.getElementById("add-button").addEventListener("click", () => {
-      onAddPostClick({
-        description: description.value,
-        imageUrl: imageUrl,
-      });
+      if (imageUrl && description.value) {
+        onAddPostClick({
+          description: description.value,
+          imageUrl: imageUrl,
+        });
+      } else {
+        alert("Впиши описание и загрузи картинку");
+      }
     });
+
   };
-
-
-
   render();
 }

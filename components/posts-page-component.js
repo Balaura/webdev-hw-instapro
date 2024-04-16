@@ -5,29 +5,22 @@ import { addDislike, addLike } from "../api.js";
 import { format } from 'date-fns';
 import { formatDistanceToNowStrict } from 'date-fns'
 import { ru } from 'date-fns/locale'
+import { userAccount } from "../index.js";
+import { safeHTML } from "../helpers.js";
 
-// var formatDistanceToNowStrict = require('date-fns/formatDistanceToNowStrict')
 export function renderPostsPageComponent({ appEl }) {
-
-  console.log("Актуальный список постов:", posts);
-
-  /**
-   * TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
-   * можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
-   */
 
   const postsHtml = posts
     .map(
       (post) => {
-        // const formatDistanceToNow = format(date, "date-fns/formatDistanceToNowStrict");
         return `
         <li class="post">
           <div class="post-header" data-user-id="${post.user.id}">
               <img src="${post.user.imageUrl}" class="post-header__user-image">
-              <p class="post-header__user-name">${post.user.name}</p>
+              <p class="post-header__user-name">${safeHTML(post.user.name)}</p>
           </div>
           <div class="post-image-container">
-            <img class="post-image" src="${post.imageUrl}">
+            <img class="post-image" src="${post.imageUrl === "https://image.png" ? "#" : post.imageUrl}">
           </div>
           <div class="post-likes">
             <button data-post-id="${post.id}" class="like-button">
@@ -40,13 +33,12 @@ export function renderPostsPageComponent({ appEl }) {
               Нравится: <strong>${post.likes.length}</strong>
             </p>
           </div>
-          <p class="post-text">${post.description}</p>
+          <p class="post-text">${safeHTML(post.description)}</p>
           <p class="post-date">${formatDistanceToNowStrict(post.createdAt, { locale: ru })} назад</p>
         </li>
     `}
     )
     .join("");
-
 
   const appHtml = `
               <div class="page-container">
@@ -64,6 +56,10 @@ export function renderPostsPageComponent({ appEl }) {
 
   for (let likeEl of document.querySelectorAll(".like-button")) {
     likeEl.addEventListener("click", () => {
+      if (!userAccount) {
+        alert("Войдите в аккаунт");
+        return
+      }
       if (!isLike(likeEl.dataset.postId)) {
         addLike({ id: likeEl.dataset.postId, token: getToken() }).then((data) => { changeLike(likeEl.dataset.postId); });
       }
